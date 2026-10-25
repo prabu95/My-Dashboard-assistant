@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Assistant</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; }
+  header { background: #2d6a4f; color: white; padding: 16px; text-align: center; font-size: 20px; }
+  .box { background: white; margin: 12px; padding: 14px; border-radius: 10px; }
+  .balance { font-size: 26px; font-weight: bold; text-align: center; }
+  input, select, button { width: 100%; padding: 12px; margin-top: 8px; font-size: 16px; box-sizing: border-box; }
+  button { background: #2d6a4f; color: white; border: none; border-radius: 8px; }
+  .item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+  .expense { color: #c0392b; }
+  .income { color: #27ae60; }
+</style>
+</head>
+<body>
+<header>My Assistant</header>
+
+<div class="box">
+  <div>Balance</div>
+  <div class="balance" id="balance">₹0</div>
+</div>
+
+<div class="box">
+  <select id="type">
+    <option value="expense">Expense</option>
+    <option value="income">Income</option>
+  </select>
+  <input id="amount" type="number" placeholder="Amount in ₹">
+  <input id="note" type="text" placeholder="What was it for?">
+  <button onclick="addEntry()">Add</button>
+</div>
+
+<div class="box">
+  <b>Recent entries</b>
+  <div id="list"></div>
+</div>
+
+<script>
+  let entries = JSON.parse(localStorage.getItem("entries") || "[]");
+
+  function addEntry() {
+    const amount = parseFloat(document.getElementById("amount").value);
+    const note = document.getElementById("note").value;
+    const type = document.getElementById("type").value;
+    if (!amount) return;
+    entries.unshift({ type, amount, note, date: new Date().toLocaleDateString("en-IN") });
+    localStorage.setItem("entries", JSON.stringify(entries));
+    document.getElementById("amount").value = "";
+    document.getElementById("note").value = "";
+    render();
+  }
+
+  function render() {
+    let balance = 0;
+    let html = "";
+    entries.forEach(e => {
+      balance += e.type === "income" ? e.amount : -e.amount;
+      html += '<div class="item"><span>' + e.note + ' (' + e.date + ')</span>' +
+              '<span class="' + e.type + '">₹' + e.amount + '</span></div>';
+    });
+    document.getElementById("balance").innerText = "₹" + balance;
+    document.getElementById("list").innerHTML = html;
+  }
+
+  render();
+</script>
+</body>
+</html>
